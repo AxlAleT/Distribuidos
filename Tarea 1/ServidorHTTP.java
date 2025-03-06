@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
-class HTTP_Server {
+class ServidorHTTP {
     static class Worker extends Thread {
         Socket conexion;
         Worker(Socket conexion) {
