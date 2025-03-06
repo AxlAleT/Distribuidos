@@ -5,57 +5,41 @@ import java.net.Socket;
 import java.net.ServerSocket;
 
 class AdministradorTrafico {
-    // Now, the proxy receives the following arguments:
-    // args[0]: local port to listen for a client.
-    // args[1]: server1 IP (the one whose response will be forwarded to the client)
-    // args[2]: server1 port.
-    // args[3]: server2 IP (its response, if any, will be discarded)
-    // args[4]: server2 port.
     static int puerto_local;
-    static String server1_ip;
-    static int server1_port;
-    static String server2_ip;
-    static int server2_port;
+    static String host_server1;
+    static int puerto_server1;
+    static String host_server2;
+    static int puerto_server2;
 
     static class Worker_1 extends Thread {
-        Socket cliente_1;
-
-        Worker_1(Socket cliente_1) {
-            this.cliente_1 = cliente_1;
+        Socket cliente;
+        Worker_1(Socket cliente) {
+            this.cliente = cliente;
         }
-
         public void run() {
-            Socket server1Socket = null;
-            Socket server2Socket = null;
+            Socket s1 = null, s2 = null;
             try {
-                // Connect to server 1 and server 2.
-                server1Socket = new Socket(server1_ip, server1_port);
-                server2Socket = new Socket(server2_ip, server2_port);
-
-                // Start a thread to forward the response from server 1 back to the client.
-                new Worker_2(cliente_1, server1Socket).start();
-                // Start a thread to consume (and discard) the response from server 2.
-                new Worker_3(server2Socket).start();
-
-                InputStream entrada_1 = cliente_1.getInputStream();
-                // Write the client's data to both servers.
-                OutputStream salida_server1 = server1Socket.getOutputStream();
-                OutputStream salida_server2 = server2Socket.getOutputStream();
+                s1 = new Socket(host_server1, puerto_server1);
+                s2 = new Socket(host_server2, puerto_server2);
+                new Worker_2(cliente, s1).start();
+                new Worker_3(s2).start();
+                InputStream in = cliente.getInputStream();
+                OutputStream out1 = s1.getOutputStream();
+                OutputStream out2 = s2.getOutputStream();
                 byte[] buffer = new byte[1024];
                 int n;
-                while ((n = entrada_1.read(buffer)) != -1) {
-                    salida_server1.write(buffer, 0, n);
-                    salida_server1.flush();
-                    salida_server2.write(buffer, 0, n);
-                    salida_server2.flush();
+                while ((n = in.read(buffer)) != -1) {
+                    out1.write(buffer, 0, n);
+                    out1.flush();
+                    out2.write(buffer, 0, n);
+                    out2.flush();
                 }
             } catch (IOException e) {
-                // Error handling (could log the error)
             } finally {
                 try {
-                    if (cliente_1 != null) cliente_1.close();
-                    if (server1Socket != null) server1Socket.close();
-                    if (server2Socket != null) server2Socket.close();
+                    if (cliente != null) cliente.close();
+                    if (s1 != null) s1.close();
+                    if (s2 != null) s2.close();
                 } catch (IOException e2) {
                     e2.printStackTrace();
                 }
@@ -63,31 +47,27 @@ class AdministradorTrafico {
         }
     }
 
-    // This thread handles the response from server 1 and forwards it to the client.
     static class Worker_2 extends Thread {
-        Socket cliente_1, server1Socket;
-
-        Worker_2(Socket cliente_1, Socket server1Socket) {
-            this.cliente_1 = cliente_1;
-            this.server1Socket = server1Socket;
+        Socket cliente, s1;
+        Worker_2(Socket cliente, Socket s1) {
+            this.cliente = cliente;
+            this.s1 = s1;
         }
-
         public void run() {
             try {
-                InputStream entrada_server1 = server1Socket.getInputStream();
-                OutputStream salida_1 = cliente_1.getOutputStream();
+                InputStream in = s1.getInputStream();
+                OutputStream out = cliente.getOutputStream();
                 byte[] buffer = new byte[4096];
                 int n;
-                while ((n = entrada_server1.read(buffer)) != -1) {
-                    salida_1.write(buffer, 0, n);
-                    salida_1.flush();
+                while ((n = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, n);
+                    out.flush();
                 }
             } catch (IOException e) {
-                // Error handling
             } finally {
                 try {
-                    if (cliente_1 != null) cliente_1.close();
-                    if (server1Socket != null) server1Socket.close();
+                    if (cliente != null) cliente.close();
+                    if (s1 != null) s1.close();
                 } catch (IOException e2) {
                     e2.printStackTrace();
                 }
@@ -95,26 +75,21 @@ class AdministradorTrafico {
         }
     }
 
-    // This thread simply reads and discards any response from server 2.
     static class Worker_3 extends Thread {
-        Socket server2Socket;
-
-        Worker_3(Socket server2Socket) {
-            this.server2Socket = server2Socket;
+        Socket s2;
+        Worker_3(Socket s2) {
+            this.s2 = s2;
         }
-
         public void run() {
             try {
-                InputStream entrada_server2 = server2Socket.getInputStream();
-                byte[] buffer = new byte[4096];
-                while (entrada_server2.read(buffer) != -1) {
-                    // Discard data.
+                InputStream in = s2.getInputStream();
+                byte[] buffer = new byte[1024];
+                while (in.read(buffer) != -1) {
                 }
             } catch (IOException e) {
-                // Error handling
             } finally {
                 try {
-                    if (server2Socket != null) server2Socket.close();
+                    if (s2 != null) s2.close();
                 } catch (IOException e2) {
                     e2.printStackTrace();
                 }
@@ -124,22 +99,19 @@ class AdministradorTrafico {
 
     public static void main(String[] args) throws Exception {
         if (args.length != 5) {
-            System.err.println("Uso:\njava Proxy <puerto-local> <server1_ip> <server1_port> <server2_ip> <server2_port>");
+            System.err.println("Uso:\njava AdministradorTrafico <puerto-local> <server1-ip> <server1-port> <server2-ip> <server2-port>");
             System.exit(1);
         }
         puerto_local = Integer.parseInt(args[0]);
-        server1_ip = args[1];
-        server1_port = Integer.parseInt(args[2]);
-        server2_ip = args[3];
-        server2_port = Integer.parseInt(args[4]);
-        System.out.println("puerto_local: " + puerto_local + ", server1: " + server1_ip + ":" + server1_port +
-                ", server2: " + server2_ip + ":" + server2_port);
+        host_server1 = args[1];
+        puerto_server1 = Integer.parseInt(args[2]);
+        host_server2 = args[3];
+        puerto_server2 = Integer.parseInt(args[4]);
+        System.out.println("puerto_local: " + puerto_local + ", server1: " + host_server1 + ":" + puerto_server1 + ", server2: " + host_server2 + ":" + puerto_server2);
         ServerSocket ss = new ServerSocket(puerto_local);
-        for (; ; ) {
-            // Wait for a connection from the client.
-            Socket cliente_1 = ss.accept();
-            // Thread that directs traffic from the client to both servers.
-            new Worker_1(cliente_1).start();
+        while (true) {
+            Socket cliente = ss.accept();
+            new Worker_1(cliente).start();
         }
     }
 }

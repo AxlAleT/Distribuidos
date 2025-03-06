@@ -1,22 +1,17 @@
-<!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Prueba de Cache</title>
-    <script>
-        function get(req, callback) {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', req, true);
-            xhr.onload = function() {
-                if (callback != null) callback(xhr.status, xhr.response);
-            };
-            xhr.send();
-        }
-    </script>
-</head>
+<script>
+    function get(req,callback)
+    {
+        const xhr=new XMLHttpRequest();
+        xhr.open('GET',req,true);
+        xhr.onload=function()
+        {
+            if(callback!=null)callback(xhr.status,xhr.response);
+        };
+        xhr.send();
+    }
+</script>
 <body>
-<button onclick="get('/suma?a=1&b=2&c=3', function(status, response){ alert(status + ' ' + response); })">
-    Accept
-</button>
+<button onclick="get('/suma?a=1&b=2&c=3',function(status,response){alert(status+' '+response);})">Aceptar</button>
 </body>
 </html>
