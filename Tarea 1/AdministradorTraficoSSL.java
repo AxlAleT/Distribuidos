@@ -8,6 +8,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLHandshakeException;
 
 class AdministradorTraficoSSL {
     static int puerto_local;
@@ -15,7 +17,6 @@ class AdministradorTraficoSSL {
     static int puerto_server1;
     static String host_server2;
     static int puerto_server2;
-
     static class Worker_1 extends Thread {
         Socket cliente;
         Worker_1(Socket cliente) {
@@ -51,7 +52,6 @@ class AdministradorTraficoSSL {
             }
         }
     }
-
     static class Worker_2 extends Thread {
         Socket cliente, s1;
         Worker_2(Socket cliente, Socket s1) {
@@ -79,7 +79,6 @@ class AdministradorTraficoSSL {
             }
         }
     }
-
     static class Worker_3 extends Thread {
         Socket s2;
         Worker_3(Socket s2) {
@@ -101,7 +100,6 @@ class AdministradorTraficoSSL {
             }
         }
     }
-
     public static void main(String[] args) throws Exception {
         if (args.length != 5) {
             System.err.println("Uso:\njava AdministradorTraficoSSL <puerto-local> <server1-ip> <server1-port> <server2-ip> <server2-port>");
@@ -122,6 +120,12 @@ class AdministradorTraficoSSL {
         SSLServerSocket ss = (SSLServerSocket) ssf.createServerSocket(puerto_local);
         while (true) {
             Socket cliente = ss.accept();
+            try {
+                ((SSLSocket) cliente).startHandshake();
+            } catch (SSLHandshakeException e) {
+                try { cliente.close(); } catch (IOException ex) {}
+                continue;
+            }
             new Worker_1(cliente).start();
         }
     }
