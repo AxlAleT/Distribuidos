@@ -1,0 +1,3 @@
+ 
+lsblk	-	discos y particiones
+df	-	particiones y punto de montaje

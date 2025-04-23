@@ -1,0 +1,554 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz} % For diagrams
+\usetikzlibrary{positioning, calc, arrows.meta} % For advanced diagram features
+\usepackage{tabularx} % For better tables
+\pagestyle{empty}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=fullflexible,
+  frame=single,
+  backgroundcolor=\color{gray!10},
+  showstringspaces=false
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    {\large \textbf{Instituto Politécnico Nacional}}\\[0.3cm]
+    {\large \textbf{Escuela Superior de Cómputo (ESCOM)}}\\[1.5cm]
+
+    {\Huge \textbf{Sistemas Distribuidos}}\\[2cm]
+
+    {\large \textbf{Tarea 4. Balance de carga en la nube}}\\[1.5cm]
+
+    {\large \textbf{Torres Ruiz Axel Alejandro}}\\[0.3cm]
+    {\large \textbf{Boleta: 2022630178}}\\[0.3cm]
+    {\large \textbf{Grupo: 7CV3}}\\[3cm]
+
+    \includegraphics[height=5cm]{ipn.png} \\[2cm]
+
+    {\large \textbf{Abril de 2025}}
+
+    \vfill
+\end{titlepage}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section*{Desarrollo}
+\addcontentsline{toc}{section}{Desarrollo}
+
+\subsection*{1. Creación de Máquinas Virtuales en Conjunto de Disponibilidad}
+\addcontentsline{toc}{subsection}{1. Creación de Máquinas Virtuales en Conjunto de Disponibilidad}
+Se crearon tres máquinas virtuales con Ubuntu, utilizando la imagen obtenida en la tarea 2. Las máquinas fueron desplegadas en un conjunto de disponibilidad configurado con tres dominios de error y tres dominios de actualización.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.1.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.2.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.3.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.4.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.5.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.6.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.7.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.8.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.9.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.10.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.11.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.12.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.13.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.14.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.15.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{1.16.png}
+\end{figure}
+
+Descripción: Se detalla la asignación de las máquinas virtuales al conjunto de disponibilidad, con énfasis en la configuración de los dominios de error y actualización.
+
+\subsection*{1.17 Verificación de Nomenclatura de Recursos}
+\addcontentsline{toc}{subsection}{1.17 Verificación de Nomenclatura de Recursos}
+De acuerdo con los requisitos de la práctica, todos los recursos se han nombrado siguiendo la convención especificada, utilizando el número de boleta 2022630178:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{6cm}|p{8cm}|}
+\hline
+\textbf{Recurso} & \textbf{Nombre Asignado} \\
+\hline
+Red virtual & T4-2022630178-vnet \\
+\hline
+Conjunto de disponibilidad & T4-2022630178-conjunto-disponibilidad \\
+\hline
+Primera máquina virtual & T4-2022630178-1 \\
+\hline
+Segunda máquina virtual & T4-2022630178-2 \\
+\hline
+Tercera máquina virtual & T4-2022630178-3 \\
+\hline
+Instancia de MySQL en PaaS & t4-2022630178-mysql \\
+\hline
+Balanceador de carga & T4-2022630178-balanceador-carga \\
+\hline
+Configuración IP de front-end & T4-2022630178-configuracion-ip \\
+\hline
+IP pública & T4-2022630178-ip-publica \\
+\hline
+Grupo de back-end & T4-2022630178-GBE \\
+\hline
+Sondeo de estado & T4-2022630178-sondeo-estado \\
+\hline
+Regla de equilibrio de carga & T4-2022630178-regla-equilibrio \\
+\hline
+\end{tabular}
+\caption{Verificación de nomenclatura de recursos según requerimientos}
+\end{table}
+
+Esto cumple con los requisitos especificados en la práctica para la nomenclatura de todos los recursos creados en Azure.
+
+\subsection*{1.18 Arquitectura General de la Solución}
+\addcontentsline{toc}{subsection}{1.18 Arquitectura General de la Solución}
+La siguiente figura muestra la arquitectura general implementada para esta práctica, ilustrando cómo interactúan los diferentes componentes:
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        node distance=1.5cm,
+        box/.style={rectangle, draw, text width=2cm, text centered, minimum height=1cm},
+        cloud/.style={ellipse, draw, text width=2cm, text centered, minimum height=1cm},
+        arrow/.style={->, >=stealth}
+    ]
+    
+    % External clients
+    \node[cloud] (clients) {Clientes Externos};
+    
+    % Load balancer
+    \node[box, below=of clients] (lb) {Balanceador de Carga};
+    
+    % VMs
+    \node[box, below left=of lb] (vm1) {VM 1};
+    \node[box, below=of lb] (vm2) {VM 2};
+    \node[box, below right=of lb] (vm3) {VM 3};
+    
+    % Availability set
+    \draw[dashed] ($(vm1.north west)+(-0.5,0.5)$) rectangle ($(vm3.south east)+(0.5,-0.5)$);
+    \node at ($(vm1.north west)+(-0.3,0.3)$) {Conjunto de Disponibilidad};
+    
+    % MySQL PaaS
+    \node[box, below=3cm of lb] (mysql) {MySQL PaaS};
+    
+    % Connections
+    \draw[arrow] (clients) -- (lb);
+    \draw[arrow] (lb) -- (vm1);
+    \draw[arrow] (lb) -- (vm2);
+    \draw[arrow] (lb) -- (vm3);
+    \draw[arrow] (vm1) -- (mysql);
+    \draw[arrow] (vm2) -- (mysql);
+    \draw[arrow] (vm3) -- (mysql);
+    \end{tikzpicture}
+    \caption{Arquitectura general de la solución implementada}
+\end{figure}
+
+\subsection*{2. Creación de la Instancia de MySQL PaaS}
+\addcontentsline{toc}{subsection}{2. Creación de la Instancia de MySQL PaaS}
+Se procedió a la creación de una instancia de MySQL a nivel PaaS, siguiendo las recomendaciones del portal de Azure tales como la region Central US donde se encuentra ubicado este servidor, no fue posible colocarlo en la region East US tal como las VM's pero esto no es relevante ya que el acceso se hace mediante ip publica, solo hay que configurar correctamente el balanceador de carga como se ve mas adelante.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{2.1.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{2.2.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{2.3.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{2.4.png}
+\end{figure}
+
+Descripción: Se destaca la configuración inicial de la instancia, así como la verificación de la cadena de conexión para su uso en las aplicaciones.
+
+\subsection*{3. Configuración de Acceso a la Instancia MySQL desde los Servicios Web}
+\addcontentsline{toc}{subsection}{3. Configuración de Acceso a la Instancia MySQL desde los Servicios Web}
+Para asegurar que los servicios web de las máquinas virtuales accedieran a la instancia MySQL en PaaS, se modificó el archivo \texttt{META-INF/context.xml} en cada máquina virtual, sustituyendo la URL de conexión local por la URL proporcionada en el portal de Azure; el archivo resultante tienen la forma: 
+
+\begin{lstlisting}
+<Context>
+  <Resource name="jdbc/datasource_Servicio" auth="Container" type="javax.sql.DataSource"
+    maxTotal="100" maxIdle="30" maxWaitMillis="10000"
+    username="AXLALET" password="c043ab777d@"
+    driverClassName="com.mysql.cj.jdbc.Driver"
+    url="jdbc:mysql://t4-2022630178-mysql.mysql.database.azure.com:3306/servicio_web?useSSL
+    =true&amp;requireSSL=true&amp;verifyServerCertificate=true&amp;sslCa
+    =/home/AXLALET/DigiCertGlobalRootCA.crt.pem"/>
+</Context>
+\end{lstlisting}
+
+En las siguientes capturas puede apreciarse ademas de como se introdujo el xml en contex.xml y que el servicio se encuentra desplegado en el directorio \textdollar CATALINA\textunderscore HOME/webapps de todas las VM's
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{3.1.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{3.2.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{3.3.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{3.4.png}
+\end{figure}
+
+Descripción: Se explica el cambio realizado en la configuración y se muestra la cadena de conexión utilizada.
+
+\subsection*{4. Configuración del Balanceador de Carga en Azure}
+\addcontentsline{toc}{subsection}{4. Configuración del Balanceador de Carga en Azure}
+Se realizaron los siguientes procedimientos para implementar y configurar el balanceador de carga, el cual es un componente crítico para distribuir el tráfico entrante entre las tres máquinas virtuales creadas previamente. El balanceador de carga de Azure implementa un algoritmo de distribución hash para equilibrar eficientemente las peticiones HTTP entre las máquinas virtuales del grupo de backend, asegurando alta disponibilidad y tiempos de respuesta óptimos.
+
+\subsubsection{4.1 Creación del Balanceador de Carga}
+Se ingresó al portal de Azure y se creó un balanceador de carga de tipo público (SKU estándar), que permite la distribución del tráfico entrante desde Internet a las máquinas virtuales en el grupo de backend. Se asignó el nombre T4-2022630178-balanceador-carga según las especificaciones requeridas.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.7.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.8.png}
+    \caption{Creación del balanceador de carga.}
+\end{figure}
+
+\subsubsection{4.2 Configuración de la IP de Front-end}
+Se agregó una configuración de IP de front-end, seleccionando la versión IPv4 y asociándola a una IP pública, según las instrucciones.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.1.png}
+    \caption{Configuración de IP de front-end.}
+\end{figure}
+
+\subsubsection{4.3 Configuración del Grupo de Back-end}
+Se creó un grupo de back-end y se asignaron las máquinas virtuales al mismo, asegurando que éstas no contaran con IP pública.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.2.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.3.png}
+    \caption{Asignación de máquinas virtuales al grupo de back-end.}
+\end{figure}
+
+\subsubsection{4.4 Configuración del Sondeo de Estado}
+Se agregó un sondeo de estado utilizando el protocolo HTTP que verifica el endpoint prueba\textunderscore json.html, configurado en el puerto 8080 de las VM's. Es importante resaltar que en cada máquina virtual se abrió el puerto 8080 para permitir la comunicación.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.9.png}
+    \caption{Configuración del sondeo de estado en el balanceador.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.13.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.14.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.15.png}
+    \caption{Configuración de los puertos en las VM's.}
+\end{figure}
+
+\subsubsection{4.5 Configuración de la Regla de Equilibrio de Carga}
+Se creó la regla de equilibrio de carga, asignando el puerto del balanceador 80 y el puerto back-end 8080 para la comunicación con los servicios web.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.4.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.5.png}
+    \caption{Configuración de la regla de equilibrio de carga.}
+\end{figure}
+
+Descripción: Se muestra el proceso de vinculación de la IP de front-end, el grupo de back-end y el sondeo de estado a través de la regla configurada.
+
+\subsubsection{4.6 Otras configuraciones necesarias}
+Debido a que la comunicación entre las VM's se realizará mediante IP pública es necesario agregar la IP del balanceador de carga a la configuración de firewall del servidor MySQL, así como agregar una outbound rule al balanceador de carga que permita a las VM's salir a internet. Esta configuración también soluciona el problema de que las VM's se encuentran en East US y el servidor MySQL en Central US.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.20.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.21.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{4.22.png}
+\end{figure}
+
+\subsection*{5. Pruebas de Funcionalidad}
+\addcontentsline{toc}{subsection}{5. Pruebas de Funcionalidad}
+Se realizaron diversas pruebas para validar el correcto funcionamiento de la configuración:
+
+\subsubsection{5.1 Prueba de Acceso desde Dispositivos Móviles}
+Se accedió a la URL \texttt{http://ip-del-balanceador-de-carga/prueba\_json.html} desde un dispositivo móvil para comprobar la disponibilidad del servicio.
+
+\subsubsection{5.2 Alta de Usuarios y Verificación en Base de Datos}
+Se dio de alta a tres usuarios a través del formulario web, incluyendo imágenes para cada usuario. Se capturaron los datos y se verificó la inserción correcta en la base de datos (mostrando la longitud de la foto).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6908.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6909.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6910.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6911.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6912.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6913.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{5.1.png}
+\end{figure}
+
+\subsubsection{5.3 Verificación de Restricción para Email Duplicado}
+Se intentó dar de alta un usuario con un email ya registrado y se comprobó que se mostrara la ventana de error correspondiente.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6914.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6915.png}
+\end{figure}
+
+\subsubsection{5.4 Consulta de Usuarios}
+Posteriormente, se consultaron los usuarios previamente registrados
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6916.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6917.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6918.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6919.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6920.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6921.png}
+\end{figure}
+
+\subsubsection{5.5 Modificación de Usuarios}
+Posteriormente se realizaron modificaciones en algunos de sus datos, se verificó la correcta actualización de la base de datos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{5.2.png}
+\end{figure}
+
+\subsubsection{5.6 Borrado de Usuarios}
+Posteriormente, se procedió al borrado de cada usuario. Se verificó la correcta actualización de la base de datos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6922.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6923.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6924.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6925.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6926.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6927.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6928.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6929.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6930.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6931.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6932.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\textheight,width=!]{IMG_6933.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=!]{5.3.png}
+\end{figure}
+
+\section*{Conclusiones}
+\addcontentsline{toc}{section}{Conclusiones}
+
+La implementación de un balanceador de carga en Azure con varias máquinas virtuales en un conjunto de disponibilidad proporciona una solución robusta para aplicaciones web que requieren alta disponibilidad y escalabilidad. A través de este proyecto se han obtenido las siguientes conclusiones:
+
+\begin{itemize}
+    \item \textbf{Alta disponibilidad}: El uso de conjuntos de disponibilidad con múltiples dominios de error y actualización garantiza que la aplicación permanezca disponible incluso durante actualizaciones de mantenimiento o fallos de hardware.
+    
+    \item \textbf{Escalabilidad}: La arquitectura implementada permite añadir más máquinas virtuales al grupo de backend del balanceador de carga cuando sea necesario, facilitando la escalabilidad horizontal.
+    
+    \item \textbf{Separación de responsabilidades}: El uso de MySQL como servicio PaaS libera a las máquinas virtuales de la responsabilidad de mantener la base de datos, permitiéndoles enfocarse en servir la aplicación web.
+    
+    \item \textbf{Rendimiento}: El balanceador de carga distribuye efectivamente las solicitudes entre las máquinas virtuales disponibles, maximizando el uso de los recursos y optimizando los tiempos de respuesta.
+    
+    \item \textbf{Monitoreo de salud}: La implementación de sondeos de estado permite al balanceador detectar automáticamente cuándo una máquina virtual no responde adecuadamente y redirigir el tráfico.
+\end{itemize}
+
+La configuración realizada demuestra cómo se pueden implementar servicios web con alta disponibilidad en la nube de Azure, combinando servicios IaaS (máquinas virtuales) con servicios PaaS (Azure Database for MySQL), lo que permite aprovechar las ventajas de ambos modelos de servicio. Este enfoque ofrece un equilibrio entre control y facilidad de administración, resultando en una solución escalable y resiliente.
+
+\end{document}

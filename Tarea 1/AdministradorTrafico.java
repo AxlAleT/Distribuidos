@@ -1,117 +1,127 @@
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
-import java.net.Socket;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-class AdministradorTrafico {
-    static int puerto_local;
-    static String host_server1;
-    static int puerto_server1;
-    static String host_server2;
-    static int puerto_server2;
+/**
+ * Proxy que reenvía datos del cliente a dos servidores remotos y devuelve
+ * la respuesta del primer servidor al cliente.
+ */
+public class AdministradorTrafico {
+    private static String host1;
+    private static int port1;
+    private static String host2;
+    private static int port2;
+    private static int localPort;
+    private static final int BUFFER_SIZE = 4096;
 
-    static class Worker_1 extends Thread {
-        Socket cliente;
-        Worker_1(Socket cliente) {
-            this.cliente = cliente;
-        }
-        public void run() {
-            Socket s1 = null, s2 = null;
-            try {
-                s1 = new Socket(host_server1, puerto_server1);
-                s2 = new Socket(host_server2, puerto_server2);
-                new Worker_2(cliente, s1).start();
-                new Worker_3(s2).start();
-                InputStream in = cliente.getInputStream();
-                OutputStream out1 = s1.getOutputStream();
-                OutputStream out2 = s2.getOutputStream();
-                byte[] buffer = new byte[1024];
-                int n;
-                while ((n = in.read(buffer)) != -1) {
-                    out1.write(buffer, 0, n);
-                    out1.flush();
-                    out2.write(buffer, 0, n);
-                    out2.flush();
-                }
-            } catch (IOException e) {
-            } finally {
-                try {
-                    if (cliente != null) cliente.close();
-                    if (s1 != null) s1.close();
-                    if (s2 != null) s2.close();
-                } catch (IOException e2) {
-                    e2.printStackTrace();
-                }
-            }
-        }
-    }
-
-    static class Worker_2 extends Thread {
-        Socket cliente, s1;
-        Worker_2(Socket cliente, Socket s1) {
-            this.cliente = cliente;
-            this.s1 = s1;
-        }
-        public void run() {
-            try {
-                InputStream in = s1.getInputStream();
-                OutputStream out = cliente.getOutputStream();
-                byte[] buffer = new byte[4096];
-                int n;
-                while ((n = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, n);
-                    out.flush();
-                }
-            } catch (IOException e) {
-            } finally {
-                try {
-                    if (cliente != null) cliente.close();
-                    if (s1 != null) s1.close();
-                } catch (IOException e2) {
-                    e2.printStackTrace();
-                }
-            }
-        }
-    }
-
-    static class Worker_3 extends Thread {
-        Socket s2;
-        Worker_3(Socket s2) {
-            this.s2 = s2;
-        }
-        public void run() {
-            try {
-                InputStream in = s2.getInputStream();
-                byte[] buffer = new byte[1024];
-                while (in.read(buffer) != -1) {
-                }
-            } catch (IOException e) {
-            } finally {
-                try {
-                    if (s2 != null) s2.close();
-                } catch (IOException e2) {
-                    e2.printStackTrace();
-                }
-            }
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         if (args.length != 5) {
-            System.err.println("Uso:\njava AdministradorTrafico <puerto-local> <server1-ip> <server1-port> <server2-ip> <server2-port>");
+            System.err.println("Uso: java AdministradorTrafico " +
+                    "<host-remoto-1> <puerto-remoto-1> " +
+                    "<host-remoto-2> <puerto-remoto-2> <puerto-local>");
             System.exit(1);
         }
-        puerto_local = Integer.parseInt(args[0]);
-        host_server1 = args[1];
-        puerto_server1 = Integer.parseInt(args[2]);
-        host_server2 = args[3];
-        puerto_server2 = Integer.parseInt(args[4]);
-        System.out.println("puerto_local: " + puerto_local + ", server1: " + host_server1 + ":" + puerto_server1 + ", server2: " + host_server2 + ":" + puerto_server2);
-        ServerSocket ss = new ServerSocket(puerto_local);
-        while (true) {
-            Socket cliente = ss.accept();
-            new Worker_1(cliente).start();
+
+        host1 = args[0];
+        port1 = Integer.parseInt(args[1]);
+        host2 = args[2];
+        port2 = Integer.parseInt(args[3]);
+        localPort = Integer.parseInt(args[4]);
+
+        System.out.printf(
+            "Iniciando proxy en puerto %d, reenviando a %s:%d y %s:%d\n",
+            localPort, host1, port1, host2, port2
+        );
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+
+        try (ServerSocket serverSocket = new ServerSocket(localPort)) {
+            while (true) {
+                // Acepta nueva conexión de cliente y crea sockets remotos en try-with-resources
+                try (Socket client = serverSocket.accept();
+                     Socket s1 = new Socket(host1, port1);
+                     Socket s2 = new Socket(host2, port2)) {
+
+                    // Reenvío de respuestas: servidor1 -> cliente
+                    executor.submit(new StreamForwarder(
+                        s1.getInputStream(), client.getOutputStream(), BUFFER_SIZE
+                    ));
+
+                    // Drenar respuestas de servidor2 para evitar bloqueo
+                    executor.submit(new StreamForwarder(
+                        s2.getInputStream(), null, BUFFER_SIZE
+                    ));
+
+                    // Reenvío de datos del cliente a ambos servidores
+                    byte[] buffer = new byte[BUFFER_SIZE];
+                    int len;
+                    InputStream inClient = client.getInputStream();
+                    OutputStream out1 = s1.getOutputStream();
+                    OutputStream out2 = s2.getOutputStream();
+
+                    while ((len = inClient.read(buffer)) != -1) {
+                        out1.write(buffer, 0, len);
+                        out1.flush();
+                        out2.write(buffer, 0, len);
+                        out2.flush();
+                    }
+
+                } catch (IOException e) {
+                    System.err.println("Error en conexión de cliente: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("No se pudo iniciar el servidor en el puerto " + localPort + ": " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    /**
+     * Runnable que copia datos desde un InputStream a un OutputStream.
+     * Si el OutputStream es null, simplemente drena el InputStream.
+     */
+    static class StreamForwarder implements Runnable {
+        private final InputStream in;
+        private final OutputStream out;
+        private final int bufSize;
+
+        StreamForwarder(InputStream in, OutputStream out, int bufSize) {
+            this.in = in;
+            this.out = out;
+            this.bufSize = bufSize;
+        }
+
+        @Override
+        public void run() {
+            byte[] buffer = new byte[bufSize];
+            int len;
+            try {
+                while ((len = in.read(buffer)) != -1) {
+                    if (out != null) {
+                        out.write(buffer, 0, len);
+                        out.flush();
+                    }
+                }
+            } catch (IOException e) {
+                // Puede ocurrir al cerrar sockets; registrar para depuración
+                System.err.println("StreamForwarder error: " + e.getMessage());
+            } finally {
+                try {
+                    in.close();
+                } catch (IOException ignored) {}
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException ignored) {}
+                }
+            }
         }
     }
 }
